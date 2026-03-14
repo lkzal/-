@@ -20,6 +20,6 @@ public class CameraFollow : MonoBehaviour
         float clampX = Mathf.Clamp(smoothedPos.x, minX, maxX);
         float clampY = Mathf.Clamp(smoothedPos.y, minY, maxY);
 
-        transform.position = new Vector3(clampX, clampY, smoothedPos.z);
+        transform.position = new Vector3(target.position.x + offset.x, target.position.y+offset.y,target.position.z + offset.z);
     }
 }
