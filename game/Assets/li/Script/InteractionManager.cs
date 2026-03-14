@@ -1,36 +1,44 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class InteractionManager : MonoBehaviour
 {
-    public Text interactText;
+    public GameObject interactText;
     private NPCDialogue currentNPC;
 
     void Update()
     {
+        // 按 E 触发对话
         if (currentNPC != null && Input.GetKeyDown(KeyCode.E))
         {
-            // 触发对话
-            FindObjectOfType<DialogueSystem>().StartDialogue(currentNPC.dialogueData);
+            DialogueSystem diaSys = FindObjectOfType<DialogueSystem>();
+            if (diaSys != null && currentNPC.dialogueData != null)
+            {
+                diaSys.StartDialogue(currentNPC.dialogueData);
+                interactText.SetActive(false);
+            }
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    // 3D 触发进入
+    private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("NPC"))
         {
             currentNPC = other.GetComponent<NPCDialogue>();
-            interactText.text = "按 E 对话";
-            interactText.enabled = true;
+            if (currentNPC != null)
+            {
+                interactText.SetActive(true);
+            }
         }
     }
 
-    void OnTriggerExit2D(Collider2D other)
+    // 3D 触发离开
+    private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("NPC"))
         {
             currentNPC = null;
-            interactText.enabled = false;
+            interactText.SetActive(false);
         }
     }
 }

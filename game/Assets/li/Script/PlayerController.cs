@@ -3,16 +3,14 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    private Rigidbody2D rb;
-    private Vector2 moveInput;
+    private CharacterController cc;
     private Animator anim;
 
-    // 交互与对话锁定
     public bool canMove = true;
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        cc = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
     }
 
@@ -20,40 +18,32 @@ public class PlayerController : MonoBehaviour
     {
         if (!canMove)
         {
-            moveInput = Vector2.zero;
-            UpdateAnimation();
+            anim.SetBool("Walk", false);
             return;
         }
 
-        // 输入获取
-        moveInput.x = Input.GetAxisRaw("Horizontal");
-        moveInput.y = Input.GetAxisRaw("Vertical");
-        moveInput.Normalize();
+        // 输入：A、D 控制 X，W、S 控制 Y
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
 
-        UpdateAnimation();
-    }
+        // 纯 XY 平面移动，Z=0 固定不动
+        Vector3 moveDir = new Vector3(h, v, 0).normalized;
 
-    void FixedUpdate()
-    {
-        // 移动
-        rb.velocity = moveInput * moveSpeed;
-    }
-
-    void UpdateAnimation()
-    {
-        if (moveInput != Vector2.zero)
+        if (moveDir.magnitude > 0.1f)
         {
-            anim.SetFloat("X", moveInput.x);
-            anim.SetFloat("Y", moveInput.y);
-            anim.SetBool("IsWalk", true);
+            // 角色面朝移动方向
+            transform.forward = new Vector3(0, 0, 1);
+            transform.right = moveDir;
+
+            cc.Move(moveDir * moveSpeed * Time.deltaTime);
+            anim.SetBool("Walk", true);
         }
         else
         {
-            anim.SetBool("IsWalk", false);
+            anim.SetBool("Walk", false);
         }
     }
 
-    // 外部调用：禁止/允许移动
     public void SetCanMove(bool value)
     {
         canMove = value;
